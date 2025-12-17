@@ -1,4 +1,3 @@
-// deposit.js
 $(document).ready(function () {
 
   // Protección de la página
@@ -8,22 +7,40 @@ $(document).ready(function () {
     return;
   }
 
-  //  Inicializar saldo si no existe
+  // Inicializar saldo 
   if (!localStorage.getItem("saldo")) {
     localStorage.setItem("saldo", "60000");
   }
 
-  // Obtener saldo actual
+  // Inicializar transacciones si no existen
+  if (!localStorage.getItem("transacciones")) {
+    localStorage.setItem("transacciones", JSON.stringify([]));
+  }
+
+  // Helpers saldo
   function getSaldo() {
     return parseInt(localStorage.getItem("saldo"));
   }
 
-  // Guardar saldo
   function setSaldo(nuevoSaldo) {
     localStorage.setItem("saldo", nuevoSaldo.toString());
   }
 
-  // Mostrar mensajes
+  // Helpers transacciones
+  function getTransacciones() {
+    return JSON.parse(localStorage.getItem("transacciones"));
+  }
+
+  function setTransacciones(lista) {
+    localStorage.setItem("transacciones", JSON.stringify(lista));
+  }
+
+  function getFechaActual() {
+    const ahora = new Date();
+    return ahora.toLocaleString("es-CL");
+  }
+
+  // Alertas
   function showAlert(message, type) {
     const alertHTML = `
       <div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -46,7 +63,15 @@ $(document).ready(function () {
     const nuevoSaldo = getSaldo() + monto;
     setSaldo(nuevoSaldo);
 
-    showAlert(`Depósito exitoso. Nuevo saldo: $${nuevoSaldo}`, "success");
+    const transacciones = getTransacciones();
+    transacciones.push({
+      tipo: "Depósito",
+      monto: monto,
+      fecha: getFechaActual()
+    });
+    setTransacciones(transacciones);
+
+    showAlert(`Depósito exitoso. Nuevo saldo: $${nuevoSaldo.toLocaleString("es-CL")}`, "success");
     $("#monto").val("");
   });
 
@@ -69,7 +94,15 @@ $(document).ready(function () {
     const nuevoSaldo = saldoActual - monto;
     setSaldo(nuevoSaldo);
 
-    showAlert(`Retiro exitoso. Nuevo saldo: $${nuevoSaldo}`, "success");
+    const transacciones = getTransacciones();
+    transacciones.push({
+      tipo: "Retiro",
+      monto: monto,
+      fecha: getFechaActual()
+    });
+    setTransacciones(transacciones);
+
+    showAlert(`Retiro exitoso. Nuevo saldo: $${nuevoSaldo.toLocaleString("es-CL")}`, "success");
     $("#monto").val("");
   });
 

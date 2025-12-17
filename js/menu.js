@@ -1,26 +1,36 @@
 $(document).ready(function () {
 
-  // Protección de la página
-  const isLoggedIn = localStorage.getItem("isLoggedIn");
-  if (isLoggedIn !== "true") {
+  // Protección
+  if (localStorage.getItem("isLoggedIn") !== "true") {
     window.location.href = "login.html";
     return;
   }
 
-  // Mostrar saldo 
+  // Mostrar saldo
   const saldo = localStorage.getItem("saldo");
+  $("#saldoActual").text(
+    saldo ? Number(saldo).toLocaleString("es-CL") : "0"
+  );
 
-  if (saldo) {
-    const saldoFormateado = Number(saldo).toLocaleString("es-CL");
-    $("#saldoActual").text(saldoFormateado);
+  // Mostrar última transacción
+  const transacciones = JSON.parse(
+    localStorage.getItem("transacciones") || "[]"
+  );
+
+  if (transacciones.length > 0) {
+    const ultima = transacciones[transacciones.length - 1];
+    const montoFmt = Number(ultima.monto).toLocaleString("es-CL");
+
+    $("#ultimaTransaccion").text(
+      `${ultima.tipo}: $${montoFmt}`
+    );
   } else {
-    $("#saldoActual").text("0");
+    $("#ultimaTransaccion").text("Sin movimientos");
   }
 
-  // Cerrar sesión
+  // Logout
   $("#btnLogout").on("click", function () {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userEmail");
+    localStorage.clear();
     window.location.href = "../index.html";
   });
 
