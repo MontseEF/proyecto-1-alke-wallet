@@ -1,34 +1,42 @@
 $(document).ready(function () {
 
-  // Protección
+  // Protección de sesión
   if (localStorage.getItem("isLoggedIn") !== "true") {
     window.location.href = "login.html";
     return;
   }
 
-  // Mostrar saldo
+  // Mostrar saldo 
   const saldo = localStorage.getItem("saldo");
   $("#saldoActual").text(
     saldo ? Number(saldo).toLocaleString("es-CL") : "0"
   );
 
-  // Mostrar última transacción
+  // Mostrar últimas 3 transacciones
   const transacciones = JSON.parse(
     localStorage.getItem("transacciones") || "[]"
   );
 
-  if (transacciones.length > 0) {
-    const ultima = transacciones[transacciones.length - 1];
-    const montoFmt = Number(ultima.monto).toLocaleString("es-CL");
+  const $lista = $("#ultimasTransacciones");
+  $lista.empty();
 
-    $("#ultimaTransaccion").text(
-      `${ultima.tipo}: $${montoFmt}`
-    );
+  if (transacciones.length === 0) {
+    $lista.append(`<li class="text-muted">Sin movimientos</li>`);
   } else {
-    $("#ultimaTransaccion").text("Sin movimientos");
+    transacciones
+      .slice(-3)        // tomar las últimas 3
+      .reverse()        // más reciente arriba
+      .forEach(t => {
+        const montoFmt = Number(t.monto).toLocaleString("es-CL");
+        $lista.append(`
+          <li>
+            <strong>${t.tipo}</strong>: $${montoFmt}
+          </li>
+        `);
+      });
   }
 
-  // Logout
+  // Cerrar sesión
   $("#btnLogout").on("click", function () {
     localStorage.clear();
     window.location.href = "../index.html";
